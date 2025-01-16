@@ -1,0 +1,97 @@
+# Biometric Attendance System
+# This system demonstrates the use of fingerprint or facial recognition for attendance tracking.
+
+# Import necessary libraries
+import cv2
+import sqlite3
+from datetime import datetime
+
+# Constants for the application
+DATABASE_PATH = 'attendance.db'
+CAMERA_INDEX = 0
+
+# Initialize the database
+def initialize_database():
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS attendance (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT NOT NULL,
+            timestamp DATETIME NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Simulating biometric authentication (use a real biometric API or hardware for actual implementation)
+def authenticate_user():
+    print("Simulating biometric authentication...")
+    # Normally, replace this with biometric scanning logic (e.g., fingerprint or face match)
+    user_id = input("Enter user ID for testing: ")
+    return user_id
+
+# Record attendance in the database
+def record_attendance(user_id):
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+    timestamp = datetime.now()
+    cursor.execute('INSERT INTO attendance (user_id, timestamp) VALUES (?, ?)', (user_id, timestamp))
+    conn.commit()
+    conn.close()
+    print(f"Attendance recorded for user {user_id} at {timestamp}")
+
+# Simulate facial recognition using a camera (for real-world, integrate ML model like OpenCV Face Recognition)
+def simulate_facial_recognition():
+    cap = cv2.VideoCapture(CAMERA_INDEX)
+    if not cap.isOpened():
+        print("Error: Could not access the camera.")
+        return None
+
+    print("Press 'q' to capture the face and proceed.")
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("Error: Could not read from the camera.")
+            break
+
+        cv2.imshow("Facial Recognition", frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            print("Simulating facial recognition...")
+            # Here, actual face recognition should take place.
+            # We'll just return a simulated user ID for demonstration purposes.
+            user_id = "SimulatedUserID"
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+    return user_id
+
+# Main function
+def main():
+    print("Initializing Biometric Attendance System...")
+    initialize_database()
+
+    print("Select Mode:")
+    print("1. Fingerprint Authentication")
+    print("2. Facial Recognition")
+    
+    choice = input("Enter your choice (1 or 2): ")
+    
+    if choice == '1':
+        user_id = authenticate_user()
+    elif choice == '2':
+        user_id = simulate_facial_recognition()
+    else:
+        print("Invalid choice.")
+        return
+
+    if user_id:
+        record_attendance(user_id)
+        print("Attendance successfully logged.")
+    else:
+        print("Authentication failed.")
+
+if __name__ == "__main__":
+    main()
